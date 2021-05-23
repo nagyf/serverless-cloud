@@ -5,8 +5,9 @@
     "serverless-cloud": "bin/serverless-cloud.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cdk synth",
     "watch": "tsc -w",
+    "clean": "rm -rf ./dist && rm -rf cdk.out",
     "test": "jest",
     "cdk": "cdk"
   },
@@ -22,6 +23,12 @@
   },
   "dependencies": {
     "@aws-cdk/core": "1.104.0",
+    "@aws-cdk/aws-kms": "1.104.0",
+    "@aws-cdk/aws-cognito": "1.104.0",
+    "@aws-cdk/aws-s3": "1.104.0",
+    "@aws-cdk/aws-s3-deployment": "1.104.0",
+    "@aws-cdk/aws-cloudfront": "1.104.0",
+    "@aws-cdk/aws-cloudfront-origins": "1.104.0",
     "source-map-support": "^0.5.16"
   }
 }

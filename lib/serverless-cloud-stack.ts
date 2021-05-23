@@ -1,9 +1,26 @@
 import * as cdk from '@aws-cdk/core';
+import { CognitoAuth } from './constructs/cognito-auth';
+import { SecureBucket } from './constructs/secure-bucket';
+import { Website } from './constructs/website';
 
 export class ServerlessCloudStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
-    super(scope, id, props);
+    constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+        super(scope, id, props);
 
-    // The code that defines your stack goes here
-  }
+        // This bucket will store the users' uploaded files
+        new SecureBucket(this, 'CloudDataBucket', {
+            name: 'serverless-cloud-data',
+        });
+
+        // Website to serve the serverless cloud website and other static files
+        const website = new Website(this, 'CloudWebsite', {
+            name: 'serverless-cloud-website',
+        });
+
+        // Cognito for Authenticating and authorizing users to the application
+        new CognitoAuth(this, 'CognitoAuth', {
+            name: 'serverless-cloud-auth',
+            websiteDomain: website.cloudfrontDistribution.distributionDomainName
+        });
+    }
 }
