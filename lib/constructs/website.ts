@@ -1,6 +1,6 @@
 import { Distribution, IDistribution, ViewerProtocolPolicy } from '@aws-cdk/aws-cloudfront';
 import { S3Origin } from '@aws-cdk/aws-cloudfront-origins';
-import { BlockPublicAccess, Bucket } from '@aws-cdk/aws-s3';
+import { Bucket } from '@aws-cdk/aws-s3';
 import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
 import * as cdk from '@aws-cdk/core';
 import { CfnOutput, RemovalPolicy } from '@aws-cdk/core';
@@ -28,9 +28,7 @@ export class Website extends cdk.Construct {
         // Deploy static content to the bucket
         new BucketDeployment(this, `WebsiteDeployment${props.name}`, {
             destinationBucket: websiteBucket,
-            sources: [
-                Source.asset('./website')
-            ]
+            sources: [Source.asset('./website')],
         });
 
         // CloudFront distribution to host the files
@@ -39,15 +37,22 @@ export class Website extends cdk.Construct {
             enableLogging: true,
             defaultBehavior: {
                 origin: new S3Origin(websiteBucket),
-                viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS
+                viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
             },
+            errorResponses: [403, 404].map(errorCode => {
+                return {
+                    httpStatus: errorCode,
+                    responseHttpStatus: 200,
+                    responsePagePath: '/index.html',
+                };
+            }),
         });
 
         // Output the CF URL in the stack
         new CfnOutput(this, 'OutputWebsiteURL', {
             exportName: `${props.name}-WebsiteURL`,
             description: `URL for the website: ${props.name}`,
-            value: `https://${this.cloudfrontDistribution.distributionDomainName}`
+            value: `https://${this.cloudfrontDistribution.distributionDomainName}`,
         });
     }
 }

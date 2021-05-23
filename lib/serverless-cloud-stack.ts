@@ -1,4 +1,5 @@
 import * as cdk from '@aws-cdk/core';
+import { Stack } from '@aws-cdk/core';
 import { CognitoAuth } from './constructs/cognito-auth';
 import { SecureBucket } from './constructs/secure-bucket';
 import { Website } from './constructs/website';
@@ -17,10 +18,13 @@ export class ServerlessCloudStack extends cdk.Stack {
             name: 'serverless-cloud-website',
         });
 
+        const region = Stack.of(this).region;
+
         // Cognito for Authenticating and authorizing users to the application
         new CognitoAuth(this, 'CognitoAuth', {
+            region,
             name: 'serverless-cloud-auth',
-            websiteDomain: website.cloudfrontDistribution.distributionDomainName
+            websiteDomain: website.cloudfrontDistribution.distributionDomainName,
         });
     }
 }

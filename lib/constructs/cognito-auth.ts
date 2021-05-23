@@ -3,6 +3,7 @@ import * as cdk from '@aws-cdk/core';
 import { CfnOutput, RemovalPolicy } from '@aws-cdk/core';
 
 export interface CognitoAuthProps {
+    readonly region: string;
     readonly name: string;
     readonly websiteDomain: string;
 }
@@ -10,6 +11,7 @@ export interface CognitoAuthProps {
 export class CognitoAuth extends cdk.Construct {
     public readonly userPool: IUserPool;
     public readonly authClient: IUserPoolClient;
+    public readonly loginUrl: string;
 
     constructor(parentScope: cdk.Construct, id: string, props: CognitoAuthProps) {
         super(parentScope, id);
@@ -48,15 +50,18 @@ export class CognitoAuth extends cdk.Construct {
 
         this.userPool.addDomain(`DefaultCognitoDomain${props.name}`, {
             cognitoDomain: {
-                domainPrefix: props.name
-            }
+                domainPrefix: props.name,
+            },
         });
+
+        const redirectLoginURL = `https://${props.websiteDomain}/login`;
+        const redirectLogoutURL = `https://${props.websiteDomain}/logout`;
 
         this.authClient = this.userPool.addClient(`AuthClient${props.name}`, {
             generateSecret: false,
             oAuth: {
-                callbackUrls: [`https://${props.websiteDomain}/`],
-                logoutUrls: [`https://${props.websiteDomain}/logout`],
+                callbackUrls: [redirectLoginURL],
+                logoutUrls: [redirectLogoutURL],
                 flows: {
                     authorizationCodeGrant: true,
                     implicitCodeGrant: true,
@@ -64,10 +69,12 @@ export class CognitoAuth extends cdk.Construct {
             },
         });
 
+        this.loginUrl = `https://${props.name}.auth.${props.region}.amazoncognito.com/login?response_type=code&client_id=${this.authClient.userPoolClientId}&redirect_uri=${redirectLoginURL}`;
+
         new CfnOutput(this, 'CognitoLoginURL', {
             exportName: `${props.name}-login-url`,
             description: `Login URL for application: ${props.name}`,
-            value: `https://${props.name}.auth.us-east-1.amazoncognito.com/login?response_type=code&client_id=${this.authClient.userPoolClientId}&redirect_uri=https://${props.websiteDomain}/`
+            value: this.loginUrl,
         });
     }
 }
