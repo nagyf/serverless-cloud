@@ -5,9 +5,10 @@
     "serverless-cloud": "bin/serverless-cloud.js"
   },
   "scripts": {
-    "build": "tsc && cdk synth",
+    "build": "tsc && pushd website && npm run build && popd && cdk synth",
+    "deploy": "npm run build && cdk deploy --region us-east-1",
     "watch": "tsc -w",
-    "clean": "rm -rf ./dist && rm -rf cdk.out",
+    "clean": "rm -rf ./dist && rm -rf cdk.out && rm -rf website/build",
     "test": "jest",
     "cdk": "cdk"
   },

@@ -28,7 +28,7 @@ export class Website extends cdk.Construct {
         // Deploy static content to the bucket
         new BucketDeployment(this, `WebsiteDeployment${props.name}`, {
             destinationBucket: websiteBucket,
-            sources: [Source.asset('./website')],
+            sources: [Source.asset('./website/build')],
         });
 
         // CloudFront distribution to host the files
