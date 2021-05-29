@@ -1,14 +1,25 @@
 import React from 'react';
-import logo from './logo.svg';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import './App.css';
+import { Dashboard } from './dashboard/Dashboard';
+import { Login } from './login/Login';
+import { Logout } from './logout/Logout';
 
 function App() {
     return (
-        <div className="App">
-            <header className="App-header">
-                <h1>Welcome to Serverless Cloud</h1>
-            </header>
-        </div>
+        <Router>
+            <Switch>
+                <Route path="/login">
+                    <Login />
+                </Route>
+                <Route path="/logout">
+                    <Logout />
+                </Route>
+                <Route path="/">
+                    <Dashboard />
+                </Route>
+            </Switch>
+        </Router>
     );
 }
 

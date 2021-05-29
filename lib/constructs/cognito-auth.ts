@@ -69,7 +69,7 @@ export class CognitoAuth extends cdk.Construct {
             },
         });
 
-        this.loginUrl = `https://${props.name}.auth.${props.region}.amazoncognito.com/login?response_type=code&client_id=${this.authClient.userPoolClientId}&redirect_uri=${redirectLoginURL}`;
+        this.loginUrl = `https://${props.name}.auth.${props.region}.amazoncognito.com/login?response_type=token&client_id=${this.authClient.userPoolClientId}&redirect_uri=${redirectLoginURL}`;
 
         new CfnOutput(this, 'CognitoLoginURL', {
             exportName: `${props.name}-login-url`,

@@ -1,6 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import { Stack } from '@aws-cdk/core';
 import { CognitoAuth } from './constructs/cognito-auth';
+import { DockerEcsFargateService } from './constructs/docker-ecs-fargate-service';
 import { SecureBucket } from './constructs/secure-bucket';
 import { Website } from './constructs/website';
 
@@ -25,6 +26,11 @@ export class ServerlessCloudStack extends cdk.Stack {
             region,
             name: 'serverless-cloud-auth',
             websiteDomain: website.cloudfrontDistribution.distributionDomainName,
+        });
+
+        new DockerEcsFargateService(this, 'CloudBackend', {
+            name: 'cloud-backend',
+            directory: './backend/serverless-cloud',
         });
     }
 }
