@@ -1,14 +1,11 @@
-# Welcome to your CDK TypeScript project!
+# Welcome to Serverless Cloud
 
-This is a blank project for TypeScript development with CDK.
+This project is a demo/learning project to advance my knowledge in AWS and architecting.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+Serverless cloud is a self-hosted file storage solution, similar to [Nextcloud](https://nextcloud.com) and [Owncloud](https://owncloud.com/).
 
-## Useful commands
-
- * `npm run build`   compile typescript to js
- * `npm run watch`   watch for changes and compile
- * `npm run test`    perform the jest unit tests
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk synth`       emits the synthesized CloudFormation template
+Goals:
+- Unlimited file storage
+- Infinite scalability
+- Secure file storage with multiple users
+- Completely serverless solution
