@@ -2,6 +2,6 @@
 
 ### Architecture
 
-![Architecture diagram](/serverless-cloud/docs/assets/ServerlessCloud-Architecture.png)
+![Architecture diagram](assets/ServerlessCloud-Architecture.png)
 
 ### File upload
