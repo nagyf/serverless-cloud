@@ -22,7 +22,7 @@ export class ServerlessCloudStack extends cdk.Stack {
         const region = Stack.of(this).region;
 
         // Cognito for Authenticating and authorizing users to the application
-        new CognitoAuth(this, 'CognitoAuth', {
+        const authStack = new CognitoAuth(this, 'CognitoAuth', {
             region,
             name: 'serverless-cloud-auth',
             websiteDomain: website.cloudfrontDistribution.distributionDomainName,
@@ -31,6 +31,11 @@ export class ServerlessCloudStack extends cdk.Stack {
         new DockerEcsFargateService(this, 'CloudBackend', {
             name: 'cloud-backend',
             directory: './backend/serverless-cloud',
+            appClientId: authStack.authClient.userPoolClientId,
+            appClientSecret: authStack.authClientSecret,
+            appClientName: authStack.authClient.userPoolClientName,
+            userPoolId: authStack.userPool.userPoolId,
+            loginRedirectUrl: authStack.redirectLoginURL
         });
     }
 }

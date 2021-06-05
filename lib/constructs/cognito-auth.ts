@@ -1,6 +1,7 @@
-import { IUserPool, IUserPoolClient, Mfa, UserPool } from '@aws-cdk/aws-cognito';
+import { IUserPool, IUserPoolClient, Mfa, UserPool, UserPoolClient } from '@aws-cdk/aws-cognito';
 import * as cdk from '@aws-cdk/core';
 import { CfnOutput, RemovalPolicy } from '@aws-cdk/core';
+import { AwsCustomResource, AwsCustomResourcePolicy, PhysicalResourceId } from '@aws-cdk/custom-resources';
 
 export interface CognitoAuthProps {
     readonly region: string;
@@ -9,8 +10,11 @@ export interface CognitoAuthProps {
 }
 
 export class CognitoAuth extends cdk.Construct {
+    public readonly redirectLoginURL: string;
+    public readonly redirectLogoutURL: string;
     public readonly userPool: IUserPool;
-    public readonly authClient: IUserPoolClient;
+    public readonly authClient: UserPoolClient;
+    public readonly authClientSecret: string;
     public readonly loginUrl: string;
 
     constructor(parentScope: cdk.Construct, id: string, props: CognitoAuthProps) {
@@ -54,14 +58,15 @@ export class CognitoAuth extends cdk.Construct {
             },
         });
 
-        const redirectLoginURL = `https://${props.websiteDomain}/login`;
-        const redirectLogoutURL = `https://${props.websiteDomain}/logout`;
+        this.redirectLoginURL = `https://${props.websiteDomain}/login`;
+        this.redirectLogoutURL = `https://${props.websiteDomain}/logout`;
 
         this.authClient = this.userPool.addClient(`AuthClient${props.name}`, {
-            generateSecret: false,
+            userPoolClientName: `userpoolclient-${props.name}`,
+            generateSecret: true,
             oAuth: {
-                callbackUrls: [redirectLoginURL],
-                logoutUrls: [redirectLogoutURL],
+                callbackUrls: [this.redirectLoginURL],
+                logoutUrls: [this.redirectLogoutURL],
                 flows: {
                     authorizationCodeGrant: true,
                     implicitCodeGrant: true,
@@ -69,7 +74,26 @@ export class CognitoAuth extends cdk.Construct {
             },
         });
 
-        this.loginUrl = `https://${props.name}.auth.${props.region}.amazoncognito.com/login?response_type=token&client_id=${this.authClient.userPoolClientId}&redirect_uri=${redirectLoginURL}`;
+        const describeCognitoUserPoolClient = new AwsCustomResource(this, 'DescribeCognitoUserPoolClient', {
+            resourceType: 'Custom::DescribeCognitoUserPoolClient',
+            onCreate: {
+                region: 'us-east-1',
+                service: 'CognitoIdentityServiceProvider',
+                action: 'describeUserPoolClient',
+                parameters: {
+                    UserPoolId: this.userPool.userPoolId,
+                    ClientId: this.authClient.userPoolClientId,
+                },
+                physicalResourceId: PhysicalResourceId.of(this.authClient.userPoolClientId),
+            },
+            policy: AwsCustomResourcePolicy.fromSdkCalls({
+                resources: AwsCustomResourcePolicy.ANY_RESOURCE,
+            }),
+        });
+
+        this.authClientSecret = describeCognitoUserPoolClient.getResponseField('UserPoolClient.ClientSecret');
+        
+        this.loginUrl = `https://${props.name}.auth.${props.region}.amazoncognito.com/login?response_type=token&client_id=${this.authClient.userPoolClientId}&redirect_uri=${this.redirectLoginURL}`;
 
         new CfnOutput(this, 'CognitoLoginURL', {
             exportName: `${props.name}-login-url`,

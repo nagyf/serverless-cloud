@@ -1,0 +1,15 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          cognito:
+            clientId: ${CLIENT_ID}
+            clientSecret: ${CLIENT_SECRET}
+            scope: openid
+            redirect-uri: ${REDIRECT_URI}
+            clientName: ${CLIENT_NAME}
+        provider:
+          cognito:
+            issuerUri: https://cognito-idp.${REGION}.amazonaws.com/${USER_POOL_ID}
+            user-name-attribute: cognito:username

@@ -2,10 +2,16 @@ import { DockerImageAsset } from '@aws-cdk/aws-ecr-assets';
 import { ContainerImage } from '@aws-cdk/aws-ecs';
 import { ApplicationLoadBalancedFargateService } from '@aws-cdk/aws-ecs-patterns';
 import * as cdk from '@aws-cdk/core';
+import { Stack } from '@aws-cdk/core';
 
 export interface DockerEcsFargateServiceProps {
     readonly name: string;
     readonly directory: string;
+    readonly userPoolId: string;
+    readonly appClientId: string;
+    readonly appClientSecret: string;
+    readonly appClientName: string;
+    readonly loginRedirectUrl: string;
 }
 
 export class DockerEcsFargateService extends cdk.Construct {
@@ -28,7 +34,21 @@ export class DockerEcsFargateService extends cdk.Construct {
             taskImageOptions: {
                 containerPort: 8080,
                 image: ContainerImage.fromDockerImageAsset(dockerImageAsset),
+                environment: {
+                    CLIENT_ID: props.appClientId,
+                    CLIENT_NAME: props.appClientName,
+                    CLIENT_SECRET: props.appClientSecret,
+                    REGION: Stack.of(this).region,
+                    USER_POOL_ID: props.userPoolId,
+                    REDIRECT_URI: props.loginRedirectUrl
+                }
             },
+        });
+
+        this.service.targetGroup.configureHealthCheck({
+            enabled: true,
+            healthyHttpCodes: '200',
+            path: '/health',
         });
     }
 }
