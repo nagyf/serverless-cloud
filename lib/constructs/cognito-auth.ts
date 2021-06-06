@@ -54,6 +54,10 @@ export class CognitoAuth extends cdk.Construct {
         });
 
         this.userPool.addDomain(`DefaultCognitoDomain${props.name}`, {
+            // customDomain: {
+            //     domainName: `auth.${props.websiteDomain}`,
+            //     certificate: props.certificate
+            // },
             cognitoDomain: {
                 domainPrefix: props.name,
             },

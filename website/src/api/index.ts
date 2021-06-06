@@ -1,10 +1,7 @@
 import axios from 'axios';
 
-// const serverUrl = 'http://localhost:8080/';
-
-// const serverUrl = !!process.env.REACT_APP_TEST ? 'http://localhost:8080/' : '';
-
-const serverUrl = !!process.env.REACT_APP_TEST ? 'http://localhost:8080/' : 'http://Serve-Cloud-Z7DAHUX71JR9-568404238.us-east-1.elb.amazonaws.com';
+const hostname = window.location.hostname;
+const serverUrl = !!process.env.REACT_APP_TEST ? 'http://localhost:8080/' : `https://api.${hostname}`;
 
 const axiosInstance = axios.create({
     baseURL: serverUrl,

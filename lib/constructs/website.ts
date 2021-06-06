@@ -1,5 +1,7 @@
-import { Distribution, IDistribution, ViewerProtocolPolicy } from '@aws-cdk/aws-cloudfront';
+import { Certificate, CertificateValidation } from '@aws-cdk/aws-certificatemanager';
+import { Distribution, IDistribution, PriceClass, ViewerProtocolPolicy } from '@aws-cdk/aws-cloudfront';
 import { S3Origin } from '@aws-cdk/aws-cloudfront-origins';
+import { HostedZone } from '@aws-cdk/aws-route53';
 import { Bucket } from '@aws-cdk/aws-s3';
 import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
 import * as cdk from '@aws-cdk/core';
@@ -7,6 +9,8 @@ import { CfnOutput, RemovalPolicy } from '@aws-cdk/core';
 
 export interface WebsiteProps {
     readonly name: string;
+    readonly domain: string;
+    readonly certificate: Certificate;
 }
 
 export class Website extends cdk.Construct {
@@ -35,9 +39,13 @@ export class Website extends cdk.Construct {
         this.cloudfrontDistribution = new Distribution(this, `Cloudfront-${props.name}`, {
             defaultRootObject: 'index.html',
             enableLogging: true,
+            domainNames: [
+                props.domain
+            ],
+            certificate: props.certificate,
             defaultBehavior: {
                 origin: new S3Origin(websiteBucket),
-                viewerProtocolPolicy: ViewerProtocolPolicy.ALLOW_ALL,
+                viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
             },
             errorResponses: [403, 404].map(errorCode => {
                 return {

@@ -1,6 +1,8 @@
+import { Certificate } from '@aws-cdk/aws-certificatemanager';
 import { DockerImageAsset } from '@aws-cdk/aws-ecr-assets';
 import { ContainerImage } from '@aws-cdk/aws-ecs';
 import { ApplicationLoadBalancedFargateService } from '@aws-cdk/aws-ecs-patterns';
+import { HostedZone, IHostedZone } from '@aws-cdk/aws-route53';
 import * as cdk from '@aws-cdk/core';
 import { Stack } from '@aws-cdk/core';
 
@@ -13,6 +15,9 @@ export interface DockerEcsFargateServiceProps {
     readonly appClientName: string;
     readonly loginRedirectUrl: string;
     readonly cognitoUrl: string;
+    readonly certificate: Certificate;
+    readonly domain: string;
+    readonly domainZone: IHostedZone;
 }
 
 export class DockerEcsFargateService extends cdk.Construct {
@@ -32,6 +37,9 @@ export class DockerEcsFargateService extends cdk.Construct {
             cpu: 256,
             memoryLimitMiB: 512,
             minHealthyPercent: 0,
+            certificate: props.certificate,
+            domainName: props.domain,
+            domainZone: props.domainZone,
             taskImageOptions: {
                 containerPort: 8080,
                 image: ContainerImage.fromDockerImageAsset(dockerImageAsset),
