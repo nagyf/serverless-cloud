@@ -37,7 +37,7 @@ export class Website extends cdk.Construct {
             enableLogging: true,
             defaultBehavior: {
                 origin: new S3Origin(websiteBucket),
-                viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                viewerProtocolPolicy: ViewerProtocolPolicy.ALLOW_ALL,
             },
             errorResponses: [403, 404].map(errorCode => {
                 return {

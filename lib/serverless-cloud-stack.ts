@@ -14,12 +14,12 @@ export class ServerlessCloudStack extends cdk.Stack {
             name: 'serverless-cloud-data',
         });
 
+        const region = Stack.of(this).region;
+
         // Website to serve the serverless cloud website and other static files
         const website = new Website(this, 'CloudWebsite', {
             name: 'serverless-cloud-website',
         });
-
-        const region = Stack.of(this).region;
 
         // Cognito for Authenticating and authorizing users to the application
         const authStack = new CognitoAuth(this, 'CognitoAuth', {
@@ -35,7 +35,8 @@ export class ServerlessCloudStack extends cdk.Stack {
             appClientSecret: authStack.authClientSecret,
             appClientName: authStack.authClient.userPoolClientName,
             userPoolId: authStack.userPool.userPoolId,
-            loginRedirectUrl: authStack.redirectLoginURL
+            loginRedirectUrl: authStack.redirectLoginURL,
+            cognitoUrl: authStack.cognitoUrl
         });
     }
 }

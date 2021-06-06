@@ -12,6 +12,7 @@ export interface DockerEcsFargateServiceProps {
     readonly appClientSecret: string;
     readonly appClientName: string;
     readonly loginRedirectUrl: string;
+    readonly cognitoUrl: string;
 }
 
 export class DockerEcsFargateService extends cdk.Construct {
@@ -40,7 +41,8 @@ export class DockerEcsFargateService extends cdk.Construct {
                     CLIENT_SECRET: props.appClientSecret,
                     REGION: Stack.of(this).region,
                     USER_POOL_ID: props.userPoolId,
-                    REDIRECT_URI: props.loginRedirectUrl
+                    REDIRECT_URI: props.loginRedirectUrl,
+                    COGNITO_URL: props.cognitoUrl
                 }
             },
         });

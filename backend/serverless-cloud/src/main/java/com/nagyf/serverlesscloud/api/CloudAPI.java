@@ -22,7 +22,7 @@ public class CloudAPI {
         this.cloudFSService = cloudFSService;
     }
 
-    @GetMapping
+    @GetMapping("/test")
     public Publisher<CloudDirectory> root() {
         return this.cloudFSService.getDirectory("/");
     }

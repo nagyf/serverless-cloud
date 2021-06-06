@@ -1,25 +1,48 @@
-import { useLocation } from 'react-router-dom';
-
-import axios from 'axios';
-
+import { useEffect } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
+import api from '../api';
 
 function useQuery(): URLSearchParams {
     return new URLSearchParams(useLocation().search);
 }
 
-function getJWK(): Promise<any> {
-    const url = 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_NtKhKtUbx/.well-known/jwks.json';
-    return axios.get(url).then(response => {
-        return response.data;
-    });
+function verifyAuthorizationCode(code: string): Promise<any> {
+    const url = '/auth/verify';
+    return api
+        .post(url, code, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then((response) => response.data);
 }
 
 export function Login(props: any) {
-    const idtoken: string = useQuery().get('idtoken') as string;
-    getJWK().then(jwk => {
-        const key = jwk.keys[0];
-        console.log(jwk);
-    });
+    const history = useHistory();
+    const authorizationCode: string = useQuery().get('code') as string;
 
-    return <h1>Token received from Cognito: {idtoken}</h1>;
+    useEffect(() => {
+        if (!!authorizationCode) {
+            verifyAuthorizationCode(authorizationCode).then((result) => {
+                const idToken = result['id_token'];
+                const accessToken = result['access_token'];
+                const refreshToken = result['refresh_token'];
+                const expiresIn = result['expires_in'];
+                const tokenType = result['token_type'];
+                localStorage.setItem(
+                    'tokens',
+                    JSON.stringify({
+                        idToken,
+                        accessToken,
+                        refreshToken,
+                        expiresIn,
+                        tokenType,
+                    })
+                );
+                history.push('/');
+            });
+        }
+    }, []);
+
+    return <h1>Token received from Cognito: {authorizationCode}</h1>;
 }

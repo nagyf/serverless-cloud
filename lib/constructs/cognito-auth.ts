@@ -16,6 +16,7 @@ export class CognitoAuth extends cdk.Construct {
     public readonly authClient: UserPoolClient;
     public readonly authClientSecret: string;
     public readonly loginUrl: string;
+    public readonly cognitoUrl: string;
 
     constructor(parentScope: cdk.Construct, id: string, props: CognitoAuthProps) {
         super(parentScope, id);
@@ -93,6 +94,7 @@ export class CognitoAuth extends cdk.Construct {
 
         this.authClientSecret = describeCognitoUserPoolClient.getResponseField('UserPoolClient.ClientSecret');
         
+        this.cognitoUrl = `https://${props.name}.auth.${props.region}.amazoncognito.com`;
         this.loginUrl = `https://${props.name}.auth.${props.region}.amazoncognito.com/login?response_type=token&client_id=${this.authClient.userPoolClientId}&redirect_uri=${this.redirectLoginURL}`;
 
         new CfnOutput(this, 'CognitoLoginURL', {
